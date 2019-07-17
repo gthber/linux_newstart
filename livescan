@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+#需要先搜集用户的信息（mac地址以及用户名）
+#保存到执行目录下的user.txt中，扫描结束后
+#会进行Mac地址比对
+#用于扫描当前所有主机在线主机，按注册和未注册分类，
+#未注册的主机可能是新机，也可能是恶意入侵者
+if [ $# != 1 ]; then
+	echo "usage:livescan [ip-range]"
+	echo "   eg.livescan 192.168.1.0/24"
+	exit -1
+fi
+
+sudo nmap -sn -PO $1 > scan.log 
+touch onlinehost.bak
+#当前在线的所有主机（包括注册和未注册)
+cat scan.log|grep Address|awk -N '{print $3}' > onlinehost
+#已经注册的主机
+cat /home/sow/bin/userscan/user.txt|awk -N '{print $1}' > registerhost
+
+#过滤出未注册的主机
+while read -r line 
+do
+    `sed -i onlinehost.bak -e /"${line}"/d onlinehost` 
+done < registerhost 
+
+cnt=`cat scan.log|grep Address|wc -l` 
+cat <<EOF > UserOnline
+[Current Online User Counts: ${cnt}]
+[<registered>]
+MAC_ADDRESS         USERNAME
+EOF
+cat scan.log|grep Address|awk -N '{print $3}'|xargs -I % sh -c 'cat user.txt|grep %' >> UserOnline
+echo "=================================" >> UserOnline
+echo "[<unregister_host>]" >> UserOnline
+echo "MAC_ADDRESS         USERNAME" >> UserOnline
+cat onlinehost >> UserOnline
+rm scan.log registerhost onlinehost onlinehost.bak
+cat UserOnline
+
+
