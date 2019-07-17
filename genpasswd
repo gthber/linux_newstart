@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+l=$1
+[ "$l" == "" ] && l=16
+tr -dc A-Za-z\!\@\%\#\&\^\*?0-9 < /dev/urandom | head -c ${l} | xargs 

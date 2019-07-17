@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+if [ $# == 0 ]; then
+	echo "	this script is to filter ip-port from the html file"
+	echo "	then,it will test the server speed and save the pre 50 fastest server list"
+	echo "	you can check the result 'cat /tmp/fastproxylist'"
+	echo "	the resource of proxy server[https://hidemyna.me/en/proxy-list/]"
+	echo "	cope the part html about ip and port to localfile"
+	echo ""
+	echo "	usage:`basename $0` filename"
+	exit -1
+fi
+
+
+cat $1|grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}"|awk '{print $1,$2}' > /tmp/hostlist 
+cat /tmp/hostlist|awk '{print $1}'|xargs -I % sh -c 'fping -c1 -t210 %' > /tmp/ping_host
+cat /tmp/ping_host |grep bytes|awk '{print $1,$6}'|uniq|sort -k2 -g > /tmp/sort_ping_host
+cat /tmp/sort_ping_host|awk '{print $1}'|xargs -I % sh -c 'cat /tmp/hostlist|grep %' > /tmp/host_result
+head -50 /tmp/host_result|awk '{print "socks4",$1,$2}' > /tmp/fastproxylist
+rm -rf /tmp/hostlist /tmp/ping_host /tmp/sort_ping_host /tmp/host_result
