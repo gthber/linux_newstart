@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+echo "export PATH=\"\$PATH:\$HOME/bin\"" >> $HOME/.bashrc
+echo "alias cpus='ps -eo pcpu,pid,user,args|sort -k1 -r -g|head -10'" >> $HOME/.bashrc
+echo "alias mems='ps -eo %mem,pid,user,args|sort -k1 -r -g|head -10'" >> $HOME/.bashrc
+echo "alias dt='clear; \$HOME/bin/dt.py'" >> $HOME/.bashrc
+echo "alias pc='proxychains /home/sow/firefox/firefox 2>/dev/null'" >> $HOME/.bashrc 
+echo "alias moc='mocp -T darkdot_theme'" >> $HOME/.bashrc
+echo "alias wsk='sudo wireshark'" >> $HOME/.bashrc
+echo "alias mp='mplayer -really-quiet -ass -subcp cp936 \$1 2>/dev/null'" >> $HOME/.bashrc
+
