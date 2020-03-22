@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
-
-if [ ! -e /usr/bin/proxychains ]; then
+#脚本主要用来过滤代理服务器
+#https://hidemy.name/en/proxy-list/
+#将网站中的地址列表窗口中的数据全部复制到文本文件
+#可以多个页面追加复制，复制完成保存
+#根据你筛选的代理服务器类型选择参数-4（socks4) -5(socks5)
+#之后脚本会自动把ip和port给过滤出来，之后会自动进行连通性和速度的测试
+#最终会将可用服务器按速度从快到慢输出到/tmp/fastproxylist
+#这个脚本我是配合proxychains来使用的，但你也可以单纯当作代理服务器的筛选测速工具来使用。
 	sudo apt-get install proxychains
 fi
 
