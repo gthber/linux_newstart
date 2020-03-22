@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#by panda1987cs@gmail.com
 #脚本主要用来过滤代理服务器
 #https://hidemy.name/en/proxy-list/
 #将网站中的地址列表窗口中的数据全部复制到文本文件
