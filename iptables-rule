@@ -1,0 +1,71 @@
+#!/bin/bash
+
+iptables -F
+iptables -X
+iptables -Z
+iptables -P INPUT DROP
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD DROP
+
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -i wlp6s0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+
+#DNS
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 53 -m state --state NEW -j ACCEPT
+iptables -A OUTPUT -o wlp6s0 -p UDP --sport 1024:65535 --dport 53 -m state --state NEW -j ACCEPT
+
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 953 -m state --state NEW -j ACCEPT
+iptables -A OUTPUT -o wlp6s0 -p UDP --sport 1024:65535 --dport 953 -m state --state NEW -j ACCEPT
+
+#HTTP
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 80 -m state --state NEW -j ACCEPT
+
+
+#HTTPS
+
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 443 -j ACCEPT
+
+#EMAIL
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 110 -j ACCEPT
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 25 -j ACCEPT
+
+#FTP
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 20 -j ACCEPT
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 21 -j ACCEPT
+
+iptables -A INPUT -i wlp6s0 -p TCP --dport 1024:65535 --sport 21 -j ACCEPT
+iptables -A INPUT -i wlp6s0 -p TCP --dport 1024:65535 --sport 20 -j ACCEPT
+#POP3S
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 995 -j ACCEPT
+
+#NTP
+iptables -A OUTPUT -o wlp6s0 -p TCP --sport 1024:65535 --dport 123 -j ACCEPT
+
+#allow ping request
+iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+iptables -A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT
+
+
+#allow dns requeset incomming
+iptables -A INPUT -i wlp6s0 -p tcp -m tcp --dport 53 -j ACCEPT
+iptables -A INPUT -i wlp6s0 -p udp -m udp --dport 53 -j ACCEPT
+
+iptables -A OUTPUT -o wlp6s0 -p tcp -m tcp --sport 53 -j ACCEPT
+iptables -A OUTPUT -o wlp6s0 -p udp -m udp --sport 53 -j ACCEPT
+
+#allow http request incomming
+iptables -A INPUT -i wlp6s0 -p tcp -m tcp --dport 80 -j ACCEPT
+iptables -A INPUT -i wlp6s0 -p tcp -m tcp --dport 443 -j ACCEPT
+
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+iptables-save > /etc/iptables-rules.fw
+
+cat <<BOF > /etc/network/if-pre-up.d/iptables-fw
+#!/bin/bash
+/usr/sbin/iptables-restore < /etc/iptables-rules.fw
+BOF
+chmod +x /etc/network/if-pre-up.d/iptables-fw
+
+ 
